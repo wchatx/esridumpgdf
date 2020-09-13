@@ -1,6 +1,24 @@
+import os
+import sys
 from setuptools import setup
 import distutils.text_file
 from pathlib import Path
+from setuptools.command.install import install
+
+VERSION = '0.0.1'
+
+
+class VerifyVersionCommand(install):
+    description = 'verify that git tag matches VERSION prior to publishing to pypi'
+
+    def run(self):
+        tag = os.getenv('GITHUB_REF')
+
+        if tag != VERSION:
+            info = 'Git tag: {0} does not match the version of this app: {1}'.format(
+                tag, VERSION
+            )
+            sys.exit(info)
 
 
 def parse_requirements(req):
@@ -12,7 +30,7 @@ with open(Path(__file__).with_name("README.md")) as f:
 
 setup(
     name='esridumpgdf',
-    version='0.0.1',
+    version=VERSION,
     url='https://github.com/wchatx/esridumpgdf',
     license='MIT',
     author_email='wchatx@gmail.com',
