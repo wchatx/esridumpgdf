@@ -3,14 +3,19 @@ from geopandas import GeoDataFrame
 from esridump.dumper import EsriDumper
 
 
-def layer_to_gdf(url: str, crs: int = 4326, **kwargs) -> GeoDataFrame:
+def layer_to_gdf(url: str, **kwargs) -> GeoDataFrame:
     """
     Export an ArcGIS Server Map or Feature service to GeoDataFrame
 
-    :param url:
-    :param crs:
-    :return:
+    ::
+        from esridumpgdf import layer_to_gdf
+        layer = 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/911CallsHotspot/MapServer/1'
+        gdf = layer_to_gdf(layer)
+
+    :param url: url of the esri layer
+    :return: GeoDataFrame
     """
+    crs = kwargs.get('crs') or 4326
     layer = EsriDumper(url, outSR=crs, **kwargs)
     gdf = GeoDataFrame.from_features(features=layer, crs=crs)
     for field in layer.get_metadata()['fields']:
