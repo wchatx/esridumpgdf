@@ -33,3 +33,9 @@ jobs:
         pip install -r requirements.txt
         pip install pytest
         pytest tests.py
+    - name: Test install
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        python setup.py install
+        python -c "from esridumpgdf import layer_to_gdf"
