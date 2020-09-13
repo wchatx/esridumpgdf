@@ -2,10 +2,11 @@ xname: Create Release
 
 on:
   push:
-    master
+    branches:
+      - master
 
 jobs:
-  publish:
+  master:
 
     runs-on: ubuntu-latest
 
