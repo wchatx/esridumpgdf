@@ -1,0 +1,37 @@
+xname: Create Release
+
+on:
+  push:
+    master
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.6
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install twine
+      - name: init .pypirc
+        env:
+          PYPI_USERNAME: ${{secrets.PYPI_USER}}
+          PYPI_PASSWORD: ${{secrets.PYPI_PASSWORD}}
+        run: |
+          echo -e "[pypi]" >> ~/.pypirc
+          echo -e "username = $PYPI_USERNAME" >> ~/.pypirc
+          echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
+      - name: upload to pypi
+        if: startsWith(github.event.ref, 'refs/tags')
+        run: |
+          python setup.py verify
+          python setup.py sdist bdist_wheel
+          echo "uploading to pypi"
+          twine upload dist/*
