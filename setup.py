@@ -11,11 +11,10 @@ with open(Path(__file__).with_name("README.md")) as f:
     long_description = f.read()
 
 setup(
-    name='esridump-gdf',
-    version='0.0.1',
-    url='https://github.com/wchatx/esridump-gdf',
+    name='esridumpgdf',
+    url='https://github.com/wchatx/esridumpgdf',
     license='MIT',
-    author='Cole Howard',
+    packages=['esridumpgdf.py'],
     author_email='wchatx@gmail.com',
     description='ArcGIS Map and Feature Services to GeoDataFrame',
     use_scm_version=True,
