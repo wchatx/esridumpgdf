@@ -12,12 +12,11 @@ with open(Path(__file__).with_name("README.md")) as f:
 
 setup(
     name='esridumpgdf',
+    version='0.0.1',
     url='https://github.com/wchatx/esridumpgdf',
     license='MIT',
-    packages=['esridumpgdf.py'],
     author_email='wchatx@gmail.com',
     description='ArcGIS Map and Feature Services to GeoDataFrame',
-    use_scm_version=True,
     long_description=long_description,
     long_description_content_type="text/markdown; charset=UTF-8",
     install_requires=parse_requirements("requirements.txt"),
