@@ -1,6 +1,6 @@
 import os
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 import distutils.text_file
 from pathlib import Path
 from setuptools.command.install import install
@@ -33,6 +33,7 @@ setup(
     version=VERSION,
     url='https://github.com/wchatx/esridumpgdf',
     license='MIT',
+    packages=find_packages(exclude=('test*', )),
     author_email='wchatx@gmail.com',
     description='ArcGIS Map and Feature Services to GeoDataFrame',
     long_description=long_description,
