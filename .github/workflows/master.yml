@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  master:
+  release:
 
     runs-on: ubuntu-latest
 
@@ -36,3 +36,9 @@ jobs:
           python setup.py sdist bdist_wheel
           echo "uploading to pypi"
           twine upload dist/*
+      - name: Publish package
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
