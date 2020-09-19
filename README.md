@@ -1,11 +1,12 @@
 # esridumpgdf
 
-Simple functions using [pyesridump](https://github.com/openaddresses/pyesridump) 
-and [geopandas](https://github.com/geopandas/geopandas) to create GeoDataFrames.  
+Simple module using [pyesridump](https://github.com/openaddresses/pyesridump) 
+and [geopandas](https://github.com/geopandas/geopandas) to create GeoDataFrames from 
+ArcGIS Map and Feature layers and services.  
 
 ## Install
 ```
-pip install git+https://github.com/wchatx/esridumpgdf.git
+pip install esridumpgdf
 ```
 
 ## Usage
