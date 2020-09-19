@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import OrderedDict as OrderedDictType, List
+from typing import List, Dict
 
 from geopandas import GeoDataFrame
 
@@ -19,7 +19,7 @@ class Service(Base):
     def tables(self) -> List[dict]:
         return self.meta['tables']
 
-    def to_gdfs(self, include_tables=True, **kwargs) -> OrderedDictType[str, GeoDataFrame]:
+    def to_gdfs(self, include_tables=True, **kwargs) -> Dict[str, GeoDataFrame]:
         """
         Export a complete ArcGIS Server Map or Feature service to list of GeoDataFrames
 
