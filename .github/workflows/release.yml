@@ -16,27 +16,8 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.6
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install twine
-      - name: init .pypirc
+      - name: make release
         env:
           PYPI_USERNAME: ${{secrets.PYPI_USER}}
           PYPI_PASSWORD: ${{secrets.PYPI_PASSWORD}}
-        run: |
-          echo -e "[pypi]" >> ~/.pypirc
-          echo -e "username = $PYPI_USERNAME" >> ~/.pypirc
-          echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
-      - name: upload to pypi
-        run: |
-          python setup.py verify
-          python setup.py sdist bdist_wheel
-          echo "uploading to pypi"
-          twine upload dist/*
-      - name: Publish package
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          user: ${{secrets.PYPI_USER}}
-          password: ${{secrets.PYPI_PASSWORD}}
+        run: make release

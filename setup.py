@@ -5,7 +5,7 @@ import distutils.text_file
 from pathlib import Path
 from setuptools.command.install import install
 
-VERSION = '0.0.2'
+VERSION = '0.0.3'
 
 
 class VerifyVersionCommand(install):
