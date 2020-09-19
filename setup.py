@@ -12,7 +12,10 @@ class VerifyVersionCommand(install):
     description = 'verify that git tag matches VERSION prior to publishing to pypi'
 
     def run(self):
-        tag = os.getenv('GITHUB_REF').split('/')[-1]
+        tag = os.environ.get('GITHUB_REF')
+        if not tag:
+            info = 'GITHUB_REF environment variable not available.'
+            sys.exit(info)
 
         if tag != VERSION:
             info = 'Git tag: {0} does not match the version of this app: {1}'.format(
@@ -39,5 +42,18 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown; charset=UTF-8",
     install_requires=parse_requirements("requirements.txt"),
+    cmdclass={
+        'verify': VerifyVersionCommand,
+    },
     python_requires=">=3.6",
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Developers',
+        'Intended Audience :: End Users/Desktop',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8'
+    ]
 )
