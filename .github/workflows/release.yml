@@ -1,0 +1,23 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - 'releases/**'
+
+jobs:
+  release:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.6
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.6
+      - name: make release
+        env:
+          PYPI_USERNAME: ${{secrets.PYPI_USER}}
+          PYPI_PASSWORD: ${{secrets.PYPI_PASSWORD}}
+        run: make release
