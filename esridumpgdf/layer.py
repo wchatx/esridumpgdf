@@ -1,3 +1,6 @@
+from typing import Union, Dict
+from collections import OrderedDict
+
 from pandas import to_datetime
 from geopandas import GeoDataFrame
 from esridump.dumper import EsriDumper
@@ -9,12 +12,26 @@ class Layer(Base):
     def __init__(self, url: str, **kwargs):
         super(Layer, self).__init__(url, **kwargs)
 
-    def to_gdf(self, **kwargs) -> GeoDataFrame:
+    @property
+    def type(self) -> str:
+        return self.meta['type']
+
+    def to_gdf(self, **kwargs) -> Union[GeoDataFrame, Dict[str, GeoDataFrame]]:
+        """
+        Export layer to GeoDataFrame
+
+        :param kwargs: extra keyword arguments provided to pyesridump's EsriDumper class
+        :return:
+        """
         crs = kwargs.get('crs') or 4326
         layer = EsriDumper(self.url, outSR=crs, **kwargs)
 
-        if self.meta['type'] == 'Group Layer':
-            raise Exception('Provided URL is a Group Layer. This is currently unsupported')
+        if self.type == 'Group Layer':
+            gdfs = OrderedDict(
+                {layer['name']: Layer(f'{"/".join(self.url.split("/")[:-1])}/{layer["id"]}', **kwargs).to_gdf()
+                 for layer in self.meta['subLayers']}
+            )
+            return gdfs
 
         gdf = GeoDataFrame.from_features(features=layer, crs=crs)
         for field in self.meta['fields']:
