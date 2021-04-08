@@ -13,18 +13,22 @@ def server_info(url) -> pd.DataFrame:
     session = Session()
     resp = session.get(url, params=dict(f='json')).json()
 
-    def _get(x):
-        resp = session.get(f'{url}/{x}', params=dict(f='json')).json()
-        services = [f'{url}{y["name"]}/{y["type"]}' for y in resp['services']]
-        layers = [session.get(t, params=dict(f='json')).json() for t in services]
-        return layers
+    def _get_layers(service):
+        svc = session.get(service, params=dict(f='json')).json()
+        if 'layers' in svc:
+            for layer in svc['layers']:
+                
+        return svc
 
     with ThreadPoolExecutor(max_workers=cpu_count()) as pool:
-        r = pool.map(_get, resp['folders'])
+        services = pool.map(
+            lambda folder: [f'{url}/{service["name"]}/{service["type"]}' for service in
+                            session.get(f'{url}/{folder}', params=dict(f='json')).json()['services']],
+            resp['folders'])
+        layers = pool.map(
+            _get_layers,
+            [item for sublist in services for item in sublist]
+        )
 
-    layers = []
-    for folder in r:
-        [[layers.append(y) for y in x['layers']] for x in folder]
-    print(len(layers))
-    server = pd.DataFrame.from_records(layers)
+    server = pd.DataFrame.from_records([item for sublist in layers for item in sublist])
     return server
