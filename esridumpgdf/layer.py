@@ -12,6 +12,9 @@ class Layer(Base):
     def __init__(self, url: str, **kwargs):
         super(Layer, self).__init__(url, **kwargs)
 
+    def __repr__(self) -> str:
+        return f'Layer(name={self.meta} url={self.url})'
+
     @property
     def type(self) -> str:
         return self.meta['type']
