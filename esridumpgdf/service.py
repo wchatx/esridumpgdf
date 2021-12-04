@@ -1,71 +1,67 @@
-import os
-import shutil
-from collections import OrderedDict
-from typing import List, Dict, Union
+from typing import Dict, List, Iterable
 
-from pandas import Series
 from geopandas import GeoDataFrame
+from pandas import DataFrame, concat
 
-from .base import Base
+from ._base import Base
 from .layer import Layer
 
 
 class Service(Base):
-    # mapName
-    name: str
-    description: str = None
-    # copyrightText
-    copyright_text: str = None
-    # supportsDynamicLayers
-    supports_dynamic_layers: bool
-    # spatialReference
-    spatial_reference: dict
+    def __init__(self, url):
+        self.url = url
+        super(Service, self).__init__(self.url)
 
-    def __init__(self, url: Union[str], **kwargs):
-        super(Service, self).__init__(url, **kwargs)
-
-    @property
-    def tables(self) -> GeoDataFrame:
-        return GeoDataFrame(data=self.meta['tables'])
-
-    @property
-    def layers(self) -> GeoDataFrame:
-        _layers = [{**layer, 'url': f'{self.url}/{layer["id"]}'} for layer in self.meta['layers']]
-        return GeoDataFrame(data=_layers)
-
-    def to_gpkg(self, path: str, include_tables: bool = True, overwrite: bool = False, **kwargs) -> None:
+    def layers(self, include_tables: bool = True) -> DataFrame:
         """
-        Export service to geopackage
+        Get Service layers.
 
+        :param include_tables: include Service tables
         :return:
         """
-        if os.path.exists(path):
-            if overwrite:
-                shutil.rmtree(path)
-            else:
-                raise Exception('Output path exists and overwrite is False')
-        self.layers.apply(
-            lambda layer: Layer(layer.url, **kwargs).to_gdf().to_file(
-                filename=f'{path}.gpkg', driver='GPKG', index=True, layer=layer['name']
-            ),
-            axis=1
-        )
-        return
+        layers = DataFrame(data=[{**layer, 'url': f'{self.url}/{layer["id"]}'} for layer in self.meta['layers']])
+        layers.set_index('id', inplace=True)
 
-    def to_gdfs(self, include_tables: bool = True, **kwargs) -> Dict[str, GeoDataFrame]:
-        """
-        Export a complete ArcGIS Server Map or Feature service to GeoDataFrames
+        if include_tables and self.meta['tables']:
+            tables = DataFrame(data=[{**table, 'url': f'{self.url}/{table["id"]}'} for table in self.meta['tables']])
+            tables.set_index('id', inplace=True)
+            layers = concat(layers, tables)
 
-        :param include_tables: whether to include attribute-only tables
-        :param kwargs: extra keyword arguments provided to pyesridump's EsriDumper class
-        :return:
+        return layers
+
+    def to_gpkg(self, filename: str, index: bool = True, schema: dict = None, include_tables: bool = True, **kwargs) -> str:
         """
-        layers = self.layers[self.layers.type == 'Feature Layer']
-        gdfs = layers.apply(lambda x: Layer(x['url']), axis=1)
-        # gdfs = OrderedDict(
-        #     {layer['id']: Layer(f'{self.url}/{layer["id"]}', **kwargs).to_gdf()
-        #      for layer in sorted(layers, key=lambda _: _['id'])}
-        # )
-        # if self.tables and include_tables:
-        #     gdfs.update({table['name']: Layer(f'{self.url}/{table["id"]}').to_gdf() for table in self.tables})
+        Export an ArcGIS Server Map or Feature service to geopackage
+
+        :param filename: File path or file handle to write to.
+        :param index: If True, write index into one or more columns (for MultiIndex).
+            Default None writes the index into one or more columns only if
+            the index is named, is a MultiIndex, or has a non-integer data
+            type. If False, no index is written.
+        :param schema: If specified, the schema dictionary is passed to Fiona to
+            better control how the file is written.
+        :param include_tables: include Service tables
+        :param kwargs: extra keyword arguments provided to the EsriDumper class
+        :return: provided filename
+        """
+        layers = self.layers(include_tables).to_dict(orient='records')
+        for layer in layers:
+            if layer['type'] == 'Feature Layer':
+                print(layer)
+                Layer(layer['url'], **kwargs).to_gdf().to_file(
+                    filename, driver='GPKG', index=index, schema=schema, layer=layer['name']
+                )
+        return filename
+
+    def to_gdfs(self, **kwargs) -> List[Dict[str, GeoDataFrame]]:
+        """
+        Export an ArcGIS Server Map or Feature service to GeoDataFrames
+
+        :return: list of dicts with layer names and layer GeoDataFrames
+        :param kwargs: extra keyword arguments provided to the EsriDumper class
+        """
+        gdfs = []
+        for layer in self.layers().to_dict(orient='records'):
+            if layer['type'] == 'Feature Layer':
+                gdfs.append({'name': layer['name'], 'gdf': Layer(layer['url'], **kwargs).to_gdf()})
         return gdfs

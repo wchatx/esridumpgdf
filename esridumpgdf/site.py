@@ -1,45 +1,51 @@
-from typing import List, Dict
+from typing import List
+from concurrent.futures import ThreadPoolExecutor
 
-from .base import Base
-from .service import Service
-import geopandas as gpd
+from pandas import DataFrame
+
+from ._base import Base
 
 
 class Site(Base):
-    def __init__(self, url: str, **kwargs):
-        super(Site, self).__init__(url, **kwargs)
-        self.current_version = self.meta['currentVersion']
+    def __init__(self, url: str):
+        self.url = url
+        super(Site, self).__init__(self.url)
 
-        # if list(self.meta.keys()) != ['currentVersion', 'folders', 'services']:
-        #     raise Exception('Provided URL was not an ArcGIS Server site')
+    def _services(self) -> List[dict]:
+        services = []
+        if self.meta['services']:
+            services.extend(self.meta['services'])
+        if self.meta['folders']:
+            for folder in self.meta['folders']:
+                response = self._session.get(f'{self.url}/{folder}').json()
+                if 'services' in response and response['services']:
+                    services.extend(response['services'])
+        return [{**service, 'url': f'{self.url}/{service["name"]}/{service["type"]}'} for service in services]
 
-    def __repr__(self) -> str:
-        return f'Site(url={self.url}, currentVersion={self.meta["currentVersion"]})'
+    def services(self) -> DataFrame:
+        """
+        Get Site services
 
-    def _repr_html_(self) -> str:
-        df = gpd.GeoDataFrame({'currentVersion': [self.meta['currentVersion']], 'url': [self.url]})
-        return df.to_html()
+        :return: DataFrame of Site services
+        """
+        return DataFrame.from_records(self._services())
 
-    @property
-    def version(self) -> float:
-        return self.current_version
+    def layers(self) -> DataFrame:
+        """
+        Get Site layers
 
-    def services(self) -> gpd.GeoDataFrame:
-        _services: List[Service] = []
+        :return: DataFrame of Site layers
+        """
+        layers = []
+        services = self._services()
 
-        for folder in self.meta['folders']:
-            services = self.session.get(f'{self.url}/{folder}', params=dict(f='json')).json()['services']
-            for service in services:
-                if service['type'] in ['MapServer', 'FeatureServer']:
-                    service = Service(f'{self.url}/{service["name"]}/{service["type"]}')
-                    _services.append(service.meta)
+        def _layers(service: dict):
+            response = self._session.get(service['url']).json()
+            if 'layers' in response:
+                layers.extend(response['layers'])
+            if 'tables' in response:
+                layers.extend(response['tables'])
 
-        return gpd.GeoDataFrame.from_records(_services)
-
-    def layers(self) -> gpd.GeoDataFrame:
-        _layers: List[Dict] = []
-        return gpd.GeoDataFrame.from_records(_layers)
-
-    def tables(self) -> gpd.GeoDataFrame:
-        _tables: List[Dict] = []
-        return gpd.GeoDataFrame.from_records(_tables)
+        with ThreadPoolExecutor() as pool:
+            pool.map(_layers, services)
+        return DataFrame.from_records(layers)

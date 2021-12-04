@@ -138,6 +138,4 @@ dmypy.json
 cython_debug/
 
 .idea
-scripts
-notebooks
 .DS_Store
