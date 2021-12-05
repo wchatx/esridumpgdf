@@ -1,12 +1,10 @@
 import json
-from copy import deepcopy
 
 from pandas import Series
 from requests import Session
 
 
 class Base(object):
-    current_version: float = None
     _supported_services = ["MapServer", "FeatureServer"]
     _supported_types = ["Feature Layer", "Table"]
 
@@ -24,13 +22,4 @@ class Base(object):
         return Series(self.meta).to_string()
 
     def _repr_html_(self) -> str:
-        session = deepcopy(self._session)
-        session.params.pop("f")
-        text = session.get(self.url).text
-        disabled = "Services Directory has been disabled"
-        if disabled in text:
-            return f"""
-            <b>{disabled}</b>\n
-            <pre>{json.dumps(self.meta, indent=2)}</pre>
-            """
-        return text
+        return f"<pre>{json.dumps(self.meta, indent=2)}</pre>"
