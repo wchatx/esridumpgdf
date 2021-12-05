@@ -7,7 +7,8 @@ from requests import Session
 
 class Base(object):
     current_version: float = None
-    supported_types = ["MapServer", "FeatureServer"]
+    _supported_services = ["MapServer", "FeatureServer"]
+    _supported_types = ["Feature Layer", "Table"]
 
     def __init__(self, url, session: Session = None):
         super(Base, self).__init__()

@@ -35,7 +35,7 @@ class Service(Base):
                 ]
             )
             tables.set_index("id", inplace=True)
-            layers = concat(layers, tables)
+            layers = concat([layers, tables])
 
         return layers
 
@@ -63,8 +63,7 @@ class Service(Base):
         """
         layers = self.layers(include_tables).to_dict(orient="records")
         for layer in layers:
-            if layer["type"] == "Feature Layer":
-                print(layer)
+            if layer["type"] in self._supported_types:
                 Layer(layer["url"], **kwargs).to_gdf().to_file(
                     filename,
                     driver="GPKG",
@@ -74,16 +73,20 @@ class Service(Base):
                 )
         return filename
 
-    def to_gdfs(self, **kwargs) -> List[Dict[str, GeoDataFrame]]:
+    def to_gdfs(
+        self, include_tables: bool = True, **kwargs
+    ) -> List[Dict[str, GeoDataFrame]]:
         """
         Export an ArcGIS Server Map or Feature service to GeoDataFrames
 
-        :return: list of dicts with layer names and layer GeoDataFrames
+        :param include_tables: include Service tables
         :param kwargs: extra keyword arguments provided to the EsriDumper class
+        :return: list of dicts with layer names and layer GeoDataFrames
         """
+        layers = self.layers(include_tables).to_dict(orient="records")
         gdfs = []
-        for layer in self.layers().to_dict(orient="records"):
-            if layer["type"] == "Feature Layer":
+        for layer in layers:
+            if layer["type"] in self._supported_types:
                 gdfs.append(
                     {
                         "name": layer["name"],
