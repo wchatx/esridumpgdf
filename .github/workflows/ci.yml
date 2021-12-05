@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - main
-    tags:
-      - '**'
   pull_request: {}
+  release:
+    types: [published]
 
 jobs:
   test:
@@ -25,3 +25,21 @@ jobs:
         run: poetry install
       - name: Run tests
         run: poetry run pytest tests.py
+
+  publish:
+    name: Publish
+    runs-on: ubuntu-20.04
+    if: github.event_name == 'release'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Get Poetry
+        uses: abatilo/actions-poetry@v2.1.4
+        with:
+          poetry-version: 1.1.12
+      - name: Install
+        run: poetry install
+      - name: Publish
+        run: poetry publish --build --username $PYPI_USERNAME --password $PYPI_PASSWORD
