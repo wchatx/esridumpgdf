@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "esridumpgdf"
 version = "0.1.1"
-description = ""
+description = "Export ArcGIS Map and Feature services to GeoDataFrame"
 readme = "README.md"
 authors = ["wchatx <wchatx@gmail.com>"]
 license = "MIT"

@@ -2,9 +2,8 @@
 
 [![CI](https://github.com/wchatx/esridumpgdf/actions/workflows/test.yml/badge.svg)](https://github.com/wchatx/esridumpgdf/actions/workflows/test.yml)
 
-Simple module using [pyesridump](https://github.com/openaddresses/pyesridump) 
-and [geopandas](https://github.com/geopandas/geopandas) to create GeoDataFrames from 
-ArcGIS Map and Feature layers and services.
+Export ArcGIS Map and Feature services and layers to GeoDataFrame  using [pyesridump](https://github.com/openaddresses/pyesridump) 
+and [geopandas](https://github.com/geopandas/geopandas).
 
 ## Install
 ```
