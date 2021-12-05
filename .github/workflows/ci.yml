@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '**'
+  pull_request: {}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: set up python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: install
+        run: |
+          make install-linting
+          pip freeze
+      - name: lint
+        run: make lint
+
+      - name: check dist
+        run: make check-dist
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Setup venv
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        python setup.py install
+    - name: Install dependencies
+      run: |
+        pip install pytest flake8 twine wheel
+    - name: Lint with flake8
+      run: |
+        make lint
+    - name: Test with pytest
+      run: |
+        make test
+    - name: Test install
+      run: |
+        python -c "from esridumpgdf import Layer, Service"
