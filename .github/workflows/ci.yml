@@ -23,5 +23,7 @@ jobs:
           poetry-version: 1.1.12
       - name: Install
         run: poetry install
+      - name: Show dir
+        run: ls
       - name: Run tests
         run: poetry run pytest .
