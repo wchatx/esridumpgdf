@@ -1,5 +1,5 @@
-from typing import List
 from concurrent.futures import ThreadPoolExecutor
+from typing import List
 
 from pandas import DataFrame
 
@@ -13,14 +13,17 @@ class Site(Base):
 
     def _services(self) -> List[dict]:
         services = []
-        if self.meta['services']:
-            services.extend(self.meta['services'])
-        if self.meta['folders']:
-            for folder in self.meta['folders']:
-                response = self._session.get(f'{self.url}/{folder}').json()
-                if 'services' in response and response['services']:
-                    services.extend(response['services'])
-        return [{**service, 'url': f'{self.url}/{service["name"]}/{service["type"]}'} for service in services]
+        if self.meta["services"]:
+            services.extend(self.meta["services"])
+        if self.meta["folders"]:
+            for folder in self.meta["folders"]:
+                response = self._session.get(f"{self.url}/{folder}").json()
+                if "services" in response and response["services"]:
+                    services.extend(response["services"])
+        return [
+            {**service, "url": f'{self.url}/{service["name"]}/{service["type"]}'}
+            for service in services
+        ]
 
     def services(self) -> DataFrame:
         """
@@ -40,11 +43,11 @@ class Site(Base):
         services = self._services()
 
         def _layers(service: dict):
-            response = self._session.get(service['url']).json()
-            if 'layers' in response:
-                layers.extend(response['layers'])
-            if 'tables' in response:
-                layers.extend(response['tables'])
+            response = self._session.get(service["url"]).json()
+            if "layers" in response:
+                layers.extend(response["layers"])
+            if "tables" in response:
+                layers.extend(response["tables"])
 
         with ThreadPoolExecutor() as pool:
             pool.map(_layers, services)
