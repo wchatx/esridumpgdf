@@ -1,7 +1,7 @@
 import json
+from copy import deepcopy
 from re import sub
 from urllib.parse import urljoin
-from copy import deepcopy
 
 from pandas import Series
 from requests import Session
@@ -37,6 +37,7 @@ class Base(object):
             """
         text = sub(
             r' href="([^"]+)"',
-            lambda m: f' href="{urljoin(self.url, m.group(1))}"', text
+            lambda m: f' href="{urljoin(self.url, m.group(1))}"',
+            text,
         )
         return text
