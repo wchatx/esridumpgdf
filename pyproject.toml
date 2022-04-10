@@ -7,7 +7,7 @@ authors = ["wchatx <wchatx@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 esridump = "^1.10.1"
 geopandas = "^0.10.2"
 
