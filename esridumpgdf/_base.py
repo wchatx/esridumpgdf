@@ -37,6 +37,6 @@ class Base(object):
             """
         text = sub(
             r' href="([^"]+)"',
-            lambda m: ' href="' + urljoin(self.url, m.group(1)) + '"', text
+            lambda m: f' href="{urljoin(self.url, m.group(1))}"', text
         )
         return text
