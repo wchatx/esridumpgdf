@@ -21,7 +21,7 @@ def test_layer_to_gdf():
 def test_service_to_gdfs():
     gdfs = Service(service).to_gdfs()
     assert gdfs
-    assert isinstance(gdfs, list)
+    assert isinstance(gdfs, dict)
 
 
 def test_service_with_table():
