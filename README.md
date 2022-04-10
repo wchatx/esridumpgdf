@@ -11,21 +11,22 @@ pip install esridumpgdf
 ```
 
 ## Usage
-For exporting a single layer to GeoDataFrame:
+For exporting a single layer to GeoDataFrame.
 ```python
 from esridumpgdf import Layer
 layer = 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/911CallsHotspot/MapServer/1'
 gdf = Layer(layer).to_gdf()
 ```
 
-To export an entire service to a multiple GeoDataFrames:
+To export an entire service to a multiple GeoDataFrames. A dict of layer numbers as keys and GeoDataFrames as 
+values is returned.
 ```python
 from esridumpgdf import Service
 service = 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/Wildfire/MapServer'
 gdfs = Service(service).to_gdfs()
 ```
 
-Write the service to geopackage. Each layer (and optionally table) will be available as a layer in the geopackage
+Write the service to geopackage. Each layer (and optionally table) will be available as a layer in the geopackage.
 ```python
 from esridumpgdf import Service
 service = 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/Wildfire/MapServer'
@@ -42,11 +43,11 @@ services = site.services()
 layers = site.layers()
 ```
 
-See the example notebook for more methods
+See the example notebook for more info
 
 ## Developing
 This project uses poetry and pre-commit. Ensure these are available  
 
 Clone the repo, run `poetry install` and `pre-commit install`  
 
-To bump versions, run `make version RULE=<rule>` where `rule` is a valid value from `poetry version`.
+To bump versions, run `make version RULE=<rule>` where `rule` is a valid value from [`poetry version`](https://python-poetry.org/docs/cli/#version).
