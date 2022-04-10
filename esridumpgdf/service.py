@@ -75,22 +75,14 @@ class Service(Base):
 
     def to_gdfs(
         self, include_tables: bool = True, **kwargs
-    ) -> List[Dict[str, GeoDataFrame]]:
+    ) -> Dict[str, GeoDataFrame]:
         """
         Export an ArcGIS Server Map or Feature service to GeoDataFrames
 
         :param include_tables: include Service tables
         :param kwargs: extra keyword arguments provided to the EsriDumper class
-        :return: list of dicts with layer names and layer GeoDataFrames
+        :return: dict with layer names and layer GeoDataFrames
         """
         layers = self.layers(include_tables).to_dict(orient="records")
-        gdfs = []
-        for layer in layers:
-            if layer["type"] in self._supported_types:
-                gdfs.append(
-                    {
-                        "name": layer["name"],
-                        "gdf": Layer(layer["url"], **kwargs).to_gdf(),
-                    }
-                )
-        return gdfs
+        output = {layer["name"]: Layer(layer["url"], **kwargs).to_gdf() for layer in layers}
+        return output
