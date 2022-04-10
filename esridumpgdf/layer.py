@@ -4,7 +4,6 @@ from typing import Dict, Union
 from esridump.dumper import EsriDumper
 from geopandas import GeoDataFrame
 from pandas import to_datetime
-from geojson.base import GeoJSON
 
 from ._base import Base
 
