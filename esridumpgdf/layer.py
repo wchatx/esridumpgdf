@@ -1,3 +1,4 @@
+from math import isnan
 from typing import Dict, Union
 
 from esridump.dumper import EsriDumper
@@ -13,6 +14,20 @@ class Layer(Base):
         self.crs = kwargs.get("crs") or 4326
         self.layer = EsriDumper(self.url, outSR=str(self.crs), **kwargs)
 
+    def _features(self, feature: dict) -> dict:
+        """
+        Preprocess features.
+
+        Currently only handles NaNs in points to prevent shapely errors
+        """
+        geometry = feature['geometry']
+        if geometry:
+            if geometry['type'] == 'Point':
+                for i, coord in enumerate(geometry['coordinates']):
+                    if isnan(float(coord)):
+                        geometry['coordinates'][i] = None
+        return feature
+
     def to_gdf(
         self, columns: list = None
     ) -> Union[GeoDataFrame, Dict[str, GeoDataFrame]]:
@@ -26,7 +41,7 @@ class Layer(Base):
         :return:
         """
         gdf = GeoDataFrame.from_features(
-            features=self.layer, crs=self.crs, columns=columns
+            features=(self._features(layer) for layer in self.layer), crs=self.crs, columns=columns
         )
         for field in self.meta["fields"]:
             if field["type"] == "esriFieldTypeOID":

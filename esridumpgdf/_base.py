@@ -1,4 +1,7 @@
 import json
+from re import sub
+from urllib.parse import urljoin
+from copy import deepcopy
 
 from pandas import Series
 from requests import Session
@@ -21,5 +24,19 @@ class Base(object):
     def __repr__(self) -> str:
         return Series(self.meta).to_string()
 
-    def _repr_html_(self) -> str:
-        return f"<pre>{json.dumps(self.meta, indent=2)}</pre>"
+    def _repr_html_(self):
+        session = deepcopy(self._session)
+        session.params.pop("f")
+
+        text = session.get(self.url).text
+        disabled = "Services Directory has been disabled"
+        if disabled in text:
+            return f"""
+            <b>{disabled}</b>\n
+            <pre>{json.dumps(self.meta, indent=2)}</pre>
+            """
+        text = sub(
+            r' href="([^"]+)"',
+            lambda m: f' href="{urljoin(self.url, m.group(1))}"', text
+        )
+        return text

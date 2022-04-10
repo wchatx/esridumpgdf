@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 from esridumpgdf import Layer, Service, Site
 
 service = "https://sampleserver6.arcgisonline.com/arcgis/rest/services/ServiceRequest/MapServer"
