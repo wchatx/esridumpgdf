@@ -1,4 +1,4 @@
-from typing import Dict, Iterable, List
+from typing import Dict, Optional
 
 from geopandas import GeoDataFrame
 from pandas import DataFrame, concat
@@ -16,8 +16,11 @@ class Service(Base):
         """
         Get Service layers.
 
-        :param include_tables: include Service tables
-        :return:
+        Args:
+            include_tables: include Service tables
+
+        Returns:
+
         """
         layers = DataFrame(
             data=[
@@ -43,27 +46,30 @@ class Service(Base):
         self,
         filename: str,
         index: bool = True,
-        schema: dict = None,
+        schema: Optional[dict] = None,
         include_tables: bool = True,
         **kwargs,
     ) -> str:
         """
         Export an ArcGIS Server Map or Feature service to geopackage
 
-        :param filename: File path or file handle to write to.
-        :param index: If True, write index into one or more columns (for MultiIndex).
-            Default None writes the index into one or more columns only if
-            the index is named, is a MultiIndex, or has a non-integer data
-            type. If False, no index is written.
-        :param schema: If specified, the schema dictionary is passed to Fiona to
-            better control how the file is written.
-        :param include_tables: include Service tables
-        :param kwargs: extra keyword arguments provided to the EsriDumper class
-        :return: provided filename
+        Args:
+            filename: File path or file handle to write to.
+            index: If True, write index into one or more columns (for MultiIndex).
+                Default None writes the index into one or more columns only if
+                the index is named, is a MultiIndex, or has a non-integer data
+                type. If False, no index is written.
+            schema: If specified, the schema dictionary is passed to Fiona to
+                better control how the file is written.
+            include_tables: include Service tables
+            **kwargs: extra keyword arguments provided to the EsriDumper class
+
+        Returns:
+
         """
         layers = self.layers(include_tables).to_dict(orient="records")
         for layer in layers:
-            if layer["type"] in self._supported_types:
+            if layer["type"] in self._SUPPORTED_TYPES:
                 Layer(layer["url"], **kwargs).to_gdf().to_file(
                     filename,
                     driver="GPKG",
@@ -73,16 +79,19 @@ class Service(Base):
                 )
         return filename
 
-    def to_gdfs(
-        self, include_tables: bool = True, **kwargs
-    ) -> Dict[str, GeoDataFrame]:
+    def to_gdfs(self, include_tables: bool = True, **kwargs) -> Dict[str, GeoDataFrame]:
         """
         Export an ArcGIS Server Map or Feature service to GeoDataFrames
 
-        :param include_tables: include Service tables
-        :param kwargs: extra keyword arguments provided to the EsriDumper class
-        :return: dict with layer names and layer GeoDataFrames
+        Args:
+            include_tables: include Service tables
+            **kwargs: extra keyword arguments provided to the EsriDumper class
+
+        Returns: dict with layer numbers and layer GeoDataFrames
+
         """
         layers = self.layers(include_tables).to_dict(orient="records")
-        output = {layer["name"]: Layer(layer["url"], **kwargs).to_gdf() for layer in layers}
+        output = {
+            layer["id"]: Layer(layer["url"], **kwargs).to_gdf() for layer in layers
+        }
         return output

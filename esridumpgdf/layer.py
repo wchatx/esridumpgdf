@@ -12,13 +12,18 @@ class Layer(Base):
     def __init__(self, url: str, **kwargs):
         super(Layer, self).__init__(url)
         self.crs = kwargs.get("crs") or 4326
-        self.layer = EsriDumper(self.url, outSR=str(self.crs), **kwargs)
+        self._layer = EsriDumper(self.url, outSR=str(self.crs), **kwargs)
 
     def _features(self, feature: dict) -> dict:
         """
         Preprocess features.
+        Currently, only handles NaNs in points to prevent shapely errors
 
-        Currently only handles NaNs in points to prevent shapely errors
+        Args:
+            feature:
+
+        Returns:
+
         """
         geometry = feature['geometry']
         if geometry:
@@ -34,14 +39,17 @@ class Layer(Base):
         """
         Export an ArcGIS Server layer to GeoDataFrame
 
-        :param columns: list of column names, optional
-            Optionally specify the column names to include in the output frame.
-            This does not overwrite the property names of the input, but can
-            ensure a consistent output format.
-        :return:
+        Args:
+            columns: list of column names, optional
+                Optionally specify the column names to include in the output frame.
+                This does not overwrite the property names of the input, but can
+                ensure a consistent output format.
+
+        Returns:
+
         """
         gdf = GeoDataFrame.from_features(
-            features=(self._features(layer) for layer in self.layer), crs=self.crs, columns=columns
+            features=(self._features(layer) for layer in self._layer), crs=self.crs, columns=columns
         )
         for field in self.meta["fields"]:
             if field["type"] == "esriFieldTypeOID":
