@@ -5,15 +5,31 @@ description = "Export ArcGIS Map and Feature services to GeoDataFrame"
 readme = "README.md"
 authors = ["wchatx <wchatx@gmail.com>"]
 license = "MIT"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Topic :: Utilities",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Testing",
+    "License :: OSI Approved :: MIT License",
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 esridump = "^1.10.1"
-geopandas = "^0.10.2"
+geopandas = "^0.12.2"
 
 [tool.poetry.dev-dependencies]
-black = "^21.11b1"
-pytest = "^6.2.5"
+black = "^22.12.0"
+pytest = "^7.2.0"
 pre-commit = "^2.18.1"
 
 [build-system]

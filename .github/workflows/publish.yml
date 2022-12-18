@@ -7,16 +7,16 @@ on:
 jobs:
   publish:
     name: Publish
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.10
       - name: Get Poetry
-        uses: abatilo/actions-poetry@v2.1.4
+        uses: abatilo/actions-poetry@v2.2.0
         with:
-          poetry-version: 1.1.12
+          poetry-version: 1.2.2
       - name: Install
         run: poetry install
       - name: Publish

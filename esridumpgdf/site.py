@@ -29,7 +29,7 @@ class Site(Base):
         """
         Get Site services
 
-        :return: DataFrame of Site services
+        Returns: DataFrame of Site services
         """
         return DataFrame.from_records(self._services())
 
@@ -37,7 +37,7 @@ class Site(Base):
         """
         Get Site layers
 
-        :return: DataFrame of Site layers
+        Returns: DataFrame of Site layers
         """
         layers = []
         services = self._services()

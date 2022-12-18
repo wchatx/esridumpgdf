@@ -2,16 +2,17 @@ import json
 from copy import deepcopy
 from re import sub
 from urllib.parse import urljoin
+from typing import Optional
 
 from pandas import Series
 from requests import Session
 
 
 class Base(object):
-    _supported_services = ["MapServer", "FeatureServer"]
-    _supported_types = ["Feature Layer", "Table"]
+    _SUPPORTED_SERVICES = ["MapServer", "FeatureServer"]
+    _SUPPORTED_TYPES = ["Feature Layer", "Table"]
 
-    def __init__(self, url, session: Session = None):
+    def __init__(self, url, session: Optional[Session] = None):
         super(Base, self).__init__()
         self.url = url
         self._session = session or Session()
